@@ -1,0 +1,20 @@
+# IntelliJ
+.idea
+
+*.js
+!jest.config.js
+!ui/settings.js
+*.d.ts
+node_modules
+lib/authorize/bootstrap
+lib/authorize/authorize.zip
+lib/connect/bootstrap
+lib/connect/connect.zip
+lib/disconnect/bootstrap
+lib/disconnect/disconnect.zip
+lib/send/bootstrap
+lib/send/send.zip
+
+# CDK asset staging directory
+.cdk.staging
+cdk.out

@@ -1,0 +1,66 @@
+<!doctype html>
+<html class="no-js" lang="" xmlns="">
+<head>
+    <meta charset="utf-8">
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <title>Cognito-AppSync-Client</title>
+    <script src="./settings.js"></script>
+    <script>
+        function processLogin(urlSearchParams) {
+            const token = urlSearchParams.get(window.config.COGNITO.ID_TOKEN);
+            localStorage.setItem(window.config.COGNITO.ID_TOKEN, token);
+            window.document.location = window.config.BASE_URL;
+        }
+
+        function isExpired(token) {
+            let claimsIndex = token.indexOf('.') + 1;
+            let claims = JSON.parse(atob(token.substring(claimsIndex, token.indexOf('.', claimsIndex))));
+
+            return claims.exp <= Math.floor(Date.now() / 1000);
+        }
+
+        function redirectToLogin() {
+            const urlSearchParams = new URLSearchParams({
+                client_id: window.config.COGNITO.CLIENT.ID,
+                response_type: window.config.COGNITO.RESPONSE_TYPE.TOKEN,
+                redirect_uri: window.config.BASE_URL,
+            });
+            window.document.location = new URL(`${window.config.COGNITO.URL}/login?${urlSearchParams}`).toString();
+        }
+
+        function openWebSocketConnection(token) {
+            const webSocket = new WebSocket(window.config.WEB_SOCKET.URL);
+            webSocket.onmessage = ev => window.document.getElementById('data').innerText = ev.data;
+            webSocket.onopen = _ => webSocket.send(JSON.stringify({token}));
+            webSocket.onclose = _ => openWebSocketConnection(token);
+        }
+
+        const urlSearchParams = new URLSearchParams(document.location.hash.substring(1));
+        const loggingIn = urlSearchParams.has(window.config.COGNITO.ID_TOKEN);
+
+        if (loggingIn) {
+            processLogin(urlSearchParams);
+        } else {
+            const token = localStorage.getItem(window.config.COGNITO.ID_TOKEN);
+            const loggedIn = token !== null;
+
+            if (loggedIn) {
+                const expired = isExpired(token);
+
+                if (expired) {
+                    localStorage.removeItem(window.config.COGNITO.ID_TOKEN);
+                    redirectToLogin();
+                } else {
+                    openWebSocketConnection(token);
+                }
+            } else {
+                redirectToLogin();
+            }
+        }
+    </script>
+</head>
+<body>
+<div id="data">
+</div>
+</body>
+</html>

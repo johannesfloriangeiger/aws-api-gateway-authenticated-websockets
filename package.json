@@ -1,0 +1,28 @@
+{
+  "name": "api-gateway-authenticated-websockets",
+  "version": "0.1.0",
+  "bin": {
+    "api-gateway-authenticated-websockets": "bin/api-gateway-authenticated-websockets.js"
+  },
+  "scripts": {
+    "build": "tsc && for LAMBDA in connect disconnect send; do (cd lib/$LAMBDA && GOOS=linux GOARCH=amd64 go build -tags lambda.norpc -o bootstrap . && zip $LAMBDA.zip bootstrap) done && (cd lib/authorize && GOOS=linux GOARCH=amd64 go build -tags lambda.norpc -o bootstrap . && zip authorize.zip bootstrap)",
+    "watch": "tsc -w",
+    "test": "jest",
+    "cdk": "cdk"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.11",
+    "@types/node": "20.11.14",
+    "@types/source-map-support": "^0.5.10",
+    "aws-cdk": "2.126.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.2",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.3.3"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.126.0",
+    "constructs": "^10.0.0",
+    "source-map-support": "^0.5.21"
+  }
+}
